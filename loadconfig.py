@@ -1,6 +1,8 @@
 class Config:
     """
-    Impostare qui le credenziali di MySQL e Redis, e l'attivazione o meno della cache
+    Impostare qui le credenziali di MySQL e Redis, l'attivazione o meno della cache
+    e il numero di impiegati che si vogliono nel database - verranno aggiunti quelli
+    mancanti o rimossi quelli in eccesso, se necessario
     """
 
     def __init__(self):

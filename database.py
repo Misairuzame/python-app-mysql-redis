@@ -40,14 +40,38 @@ class Database:
 
         self.cur.execute("SELECT COUNT(1) FROM employees")
         result = self.cur.fetchone()
-        how_many = result["COUNT(1)"]
+        quanti_presenti = int(result["COUNT(1)"])
 
-        if how_many == HOW_MANY_EMPLOYEES:
+        if quanti_presenti == HOW_MANY_EMPLOYEES:
             self.con.commit()
+            self.cur.execute("SELECT COUNT(1) FROM employees")
+            result = self.cur.fetchone()
+            quanti = int(result["COUNT(1)"])
+            print(f"Applicazione avviata con {quanti} impiegati nel database.")
+            return
+        elif quanti_presenti > HOW_MANY_EMPLOYEES:
+            to_remove = quanti_presenti - HOW_MANY_EMPLOYEES
+            self.cur.execute(
+                f"DELETE FROM employees ORDER BY id DESC LIMIT {to_remove}"
+            )
+            self.con.commit()
+            self.cur.execute("SELECT COUNT(1) FROM employees")
+            result = self.cur.fetchone()
+            quanti = int(result["COUNT(1)"])
+            print(f"Applicazione avviata con {quanti} impiegati nel database.")
             return
 
+        # quanti_presenti < HOW_MANY_EMPLOYEES
+        to_add = HOW_MANY_EMPLOYEES - quanti_presenti
+        self.cur.execute("SELECT MAX(id) FROM employees")
+        result = self.cur.fetchone()
+        try:
+            max_id = int(result["MAX(id)"])
+        except:
+            max_id = -1
+
         fake = Faker()
-        for i in range(HOW_MANY_EMPLOYEES):
+        for i in range(to_add):
             is_male = random.randint(0, 1) == 0
             if is_male:
                 fakename = fake.first_name_male()
@@ -57,10 +81,14 @@ class Database:
                 fakesurname = fake.last_name_female()
             self.cur.execute(
                 f"""INSERT INTO employees VALUES
-                    ({i}, '{fakename}', '{fakesurname}', {int(is_male)})"""
+                    ({i+max_id+1}, '{fakename}', '{fakesurname}', {int(is_male)})"""
             )
 
         self.con.commit()
+        self.cur.execute("SELECT COUNT(1) FROM employees")
+        result = self.cur.fetchone()
+        quanti = int(result["COUNT(1)"])
+        print(f"Applicazione avviata con {quanti} impiegati nel database.")
 
     def list_employees(self):
         self.cur.execute("SELECT firstname, lastname, gender FROM employees")
