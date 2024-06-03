@@ -26,17 +26,20 @@ def list_employees():
             if not emps:
                 # Cache miss
                 emps = str(db.list_employees())
-                print("Employee list loaded from the db:", emps)
                 # write into the cache
                 cache.get_conn().set("listemp", str(emps))
+                emps = eval(emps)
+                print("N impiegati presi dal DB:", len(emps))
             else:
                 # Cache hit
-                print("Obtained from the cache: ", str(emps))
+                emps = eval(emps)
+                print("N impiegati presi dalla chace: ", len(emps))
         else:
             emps = str(db.list_employees())
-            print("Employee list loaded from the db:", emps)
+            emps = eval(emps)
+            print("N impiegati presi dal DB:", len(emps))
 
-        return eval(emps)
+        return emps
 
     # query db or cache to get the list of the employees
     res = db_query()
